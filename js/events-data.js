@@ -82,3 +82,48 @@ addEvent("mcountdown-first-win", "album5", "엠카운트다운 첫 1위", "2026.
 
 const EVENT_BY_ID = {};
 EVENTS.forEach(function (e) { EVENT_BY_ID[e.id] = e; });
+
+// ===== 사건별 영상 (썸네일로 표시되고, 클릭하면 팝업 안에서 재생) =====
+// 제공받은 자료의 유튜브 링크에서 영상 ID만 옮겼다. (링크의 youtu.be/ 뒤 11글자)
+// 영상 링크를 바꾸거나 추가하려면 아래 목록의 ID만 고치면 된다.
+// 사진은 { type: "image", src: "assets/media/파일이름.png", label: "설명" } 형태로 같은 media 배열에 넣는다.
+// (자료에 링크가 없던 사건은 비워 두었다: 첫 팀명 공개, 2집 티저, 시뮬레이션 프로모션 등)
+
+function addVideos(eventId, list) {
+  const ev = EVENT_BY_ID[eventId];
+  if (!ev) { console.error("영상을 연결할 사건이 없음:", eventId); return; }
+  list.forEach(function (v) {
+    ev.media.push({ type: "video", youtubeId: v.id, label: v.label || "" });
+  });
+}
+
+addVideos("umm-great-release", [{ id: "L__ITOj-g8E" }]);
+addVideos("mama-said-release", [{ id: "JY0UTOgh8M8" }]);
+addVideos("first-broadcast-1", [{ id: "b7P60UZQNtM", label: "응그래 무대" }, { id: "zePswrUiTPQ", label: "마마새드 무대" }]);
+addVideos("see-you-tomorrow", [{ id: "A1xGW7TNr3k" }]);
+addVideos("debut-lecture", [{ id: "ZOmmALFXXv8" }]);
+addVideos("first-content", [{ id: "rNJnV1xbQfo" }]);
+addVideos("freeze-release", [{ id: "Z6fpV6V9y80" }]);
+addVideos("complicated", [{ id: "Z3RkxXwZjdg" }]);
+addVideos("first-broadcast-2", [{ id: "IswxCvxL8vE" }]);
+addVideos("first-pitch", [{ id: "HBUYyaUlB6I" }]);
+addVideos("lollapalooza", [{ id: "1SwE1veFLCQ" }]);
+addVideos("band-aid-release", [{ id: "6KksgSzEZvQ" }]);
+addVideos("cheobulno-release", [{ id: "eebhl4lGv_Y" }]);
+addVideos("first-broadcast-3", [{ id: "QnC5-YjjsbA" }]);
+addVideos("first-win-3", [{ id: "e7SrYHBt6jY" }]);
+addVideos("donghyeon-graduation", [{ id: "oPV9jwXq_tU" }]);
+addVideos("first-ost", [{ id: "KA0IZaoR8EA" }]);
+addVideos("debut-anniversary", [{ id: "FJItpgIZEL4" }]);
+addVideos("kyehoon-mc", [{ id: "tLlfw5Da9L0" }]);
+addVideos("twenty-release", [{ id: "Gt0wRAFpwvg" }]);
+addVideos("twenty-broadcast", [{ id: "FlVFTDFY3rk" }]);
+addVideos("eyepoppin-release", [{ id: "i5S7DBQnqP0" }]);
+addVideos("eyepoppin-broadcast", [{ id: "uUzq2hlSwaA" }]);
+addVideos("donghyeon-breathe", [{ id: "AIR_6Wz9lIA" }]);
+addVideos("incomplete-release", [{ id: "3bLurEgiD0c" }]);
+addVideos("kickoff-release", [{ id: "0aITySxhz9g" }]);
+addVideos("incomplete-broadcast", [{ id: "GFUtARl3VEw" }]);
+addVideos("kickoff-broadcast", [{ id: "uE3Xj8ykDFE" }]);
+addVideos("hate-blueberry", [{ id: "OFFhkIUf6gc" }]);
+addVideos("mcountdown-first-win", [{ id: "WwhwGADJtmk" }]);

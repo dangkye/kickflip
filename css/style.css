@@ -146,3 +146,20 @@ button {
 @media (orientation: portrait) {
   #rotate-hint { display: block; }
 }
+
+/* hidden 속성이 다른 display 설정에 밀리지 않도록 */
+[hidden] { display: none !important; }
+
+/* 도감 버튼 (오른쪽 위, 맵 이름 아래) */
+#btn-book {
+  position: absolute;
+  top: 9.5%;
+  right: 2%;
+  padding: 0.35em 0.9em;
+  font-size: clamp(10px, 1.7vw, 16px);
+  color: #fff;
+  background: rgba(20, 24, 36, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+}
+#btn-book:hover { background: rgba(60, 70, 100, 0.85); }

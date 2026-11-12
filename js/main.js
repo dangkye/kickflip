@@ -16,16 +16,13 @@
     toast: document.getElementById("hud-toast"),
     back: document.getElementById("btn-back"),
     devMap: document.getElementById("dev-map"),
-    popup: document.getElementById("popup"),
-    popupTitle: document.getElementById("popup-title"),
-    popupDate: document.getElementById("popup-date"),
-    popupSource: document.getElementById("popup-source"),
-    popupClose: document.getElementById("popup-close"),
     btnLeft: document.getElementById("btn-left"),
     btnRight: document.getElementById("btn-right"),
     confirm: document.getElementById("confirm"),
     confirmYes: document.getElementById("confirm-yes"),
-    confirmNo: document.getElementById("confirm-no")
+    confirmNo: document.getElementById("confirm-no"),
+    confirmMain: document.getElementById("confirm-main"),
+    confirmWarn: document.getElementById("confirm-warn")
   };
 
   // ---------- 게임 상태 ----------
@@ -277,6 +274,23 @@
       ctx.strokeStyle = "#ffe14d";
       ctx.strokeRect(sx - 3, top - 3, obj.w + 6, obj.h + 6);
     }
+
+    // 아직 확인하지 않은 사건 오브제에는 통통 튀는 "!" 표시 (이미지로 교체해도 유지됨)
+    if (obj.type === "event" && !Collection.isCollected(obj.eventId)) {
+      const bx = sx + obj.w - 2;
+      const by = top - 4 + Math.sin(performance.now() / 280) * 2;
+      ctx.beginPath();
+      ctx.arc(bx, by, 9, 0, Math.PI * 2);
+      ctx.fillStyle = "#e8604c";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("!", bx, by + 4);
+    }
   }
 
   // 앨범 이동용 스케이트보드 (모든 보드는 같은 형태, 색만 다름)
@@ -388,32 +402,27 @@
         showToast("문 앞으로 가까이 가 보세요");
       }
     } else if (obj.type === "event") {
-      openPopup(obj.eventId);               // 7단계에서 정식 팝업으로 교체
+      Popup.open(obj.eventId);              // 공통 사건 팝업 (열면 도감에 수집 처리)
     }
   });
 
-  // ---------- 임시 팝업 ----------
-  function openPopup(eventId) {
-    const ev = EVENT_BY_ID[eventId];
-    if (!ev) return;
-    els.popupTitle.textContent = ev.title;
-    els.popupDate.textContent = (ev.date || "") + (ev.dateNote ? "  (" + ev.dateNote + ")" : "");
-    els.popupSource.textContent = ev.source ? "출처: " + ev.source : "";
-    els.popup.hidden = false;
-    state.popupOpen = true;
-  }
-
-  function closePopup() {
-    els.popup.hidden = true;
-    state.popupOpen = false;
-  }
-  els.popupClose.addEventListener("click", closePopup);
-  els.popup.addEventListener("click", function (e) { if (e.target === els.popup) closePopup(); });
+  // ---------- 사건 팝업 / 도감 연결 ----------
+  // 팝업이나 도감이 열려 있는 동안에는 플레이어 이동을 멈춘다.
+  Popup.init({
+    onOpen: function () { state.popupOpen = true; },
+    onClose: function () { state.popupOpen = false; }
+  });
+  Book.init({
+    onOpen: function () { state.popupOpen = true; },
+    onClose: function () { state.popupOpen = false; },
+    canOpen: function () {
+      return !state.popupOpen && !state.pendingMap && state.fadeDir === 0 && state.holdTime === 0;
+    }
+  });
 
   // ---------- 메인 골목으로 돌아가기 ----------
   // 돌아가면 해당 앨범 보드 앞에서 시작한다. 2집/3집처럼 장면이 나뉜 앨범도 앨범 id로 보드를 찾는다.
-  // (9단계에서 미수집 기록이 있을 때 경고 팝업을 이 부분에 추가한다)
-  function backToMain() {
+  function goToMain() {
     if (state.mapId === "main") return;
     let spawnX = MAPS.main.spawnX;
     const boards = OBJECTS_BY_MAP.main;
@@ -424,7 +433,12 @@
     }
     travelTo("main", spawnX);
   }
-  els.back.addEventListener("click", backToMain);
+  // 돌아가기 버튼: 이 앨범에 미수집 기록이 남아 있으면 경고 팝업을 먼저 띄우고, 없으면 바로 이동한다.
+  els.back.addEventListener("click", function () {
+    if (state.mapId === "main" || state.pendingMap || state.popupOpen) return;
+    if (Collection.remainingInAlbum(state.map.album) > 0) openConfirm(false);
+    else goToMain();
+  });
 
   // ---------- 맵 끝 팝업 ----------
   // 앨범의 마지막 장면 끝에 닿으면 "메인 골목으로 돌아갈까요?" 팝업을 띄운다.
@@ -435,13 +449,21 @@
     const distToEnd = map.width - state.player.x;
     if (!state.endPromptShown && distToEnd <= END_ZONE) {
       state.endPromptShown = true;
-      openConfirm();
+      openConfirm(true);
     } else if (state.endPromptShown && distToEnd > END_RESET) {
       state.endPromptShown = false;
     }
   }
 
-  function openConfirm() {
+  // fromEnd: 맵 끝에 닿아서 열렸으면 true, 돌아가기 버튼으로 열렸으면 false
+  // 이 앨범에서 아직 확인하지 않은 기록이 있으면 개수를 함께 알려준다.
+  function openConfirm(fromEnd) {
+    const remain = Collection.remainingInAlbum(state.map.album);
+    els.confirmMain.textContent = fromEnd
+      ? "이 앨범의 끝이에요. 메인 골목으로 돌아갈까요?"
+      : "메인 골목으로 돌아갈까요?";
+    els.confirmWarn.textContent = remain > 0 ? "아직 확인하지 않은 기록이 " + remain + "개 있어요." : "";
+    els.confirmWarn.hidden = remain === 0;
     els.confirm.hidden = false;
     state.popupOpen = true;   // 팝업이 열려 있는 동안 이동 정지
   }
@@ -449,7 +471,7 @@
     els.confirm.hidden = true;
     state.popupOpen = false;
   }
-  els.confirmYes.addEventListener("click", function () { closeConfirm(); backToMain(); });
+  els.confirmYes.addEventListener("click", function () { closeConfirm(); goToMain(); });
   els.confirmNo.addEventListener("click", closeConfirm);
 
   // 개발용 맵 선택
@@ -472,7 +494,9 @@
     if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") { input.left = true; e.preventDefault(); }
     if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") { input.right = true; e.preventDefault(); }
     if (e.key === "Escape" && state.popupOpen) {
-      if (!els.confirm.hidden) closeConfirm(); else closePopup();
+      if (!els.confirm.hidden) closeConfirm();
+      else if (Book.isOpen()) Book.close();
+      else Popup.close();
     }
   });
   window.addEventListener("keyup", function (e) {

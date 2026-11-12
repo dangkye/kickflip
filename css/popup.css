@@ -1,5 +1,5 @@
-/* ===== 사건 기록 팝업 (임시 버전, 7단계에서 확장) ===== */
-#popup, #confirm {
+/* ===== 팝업 공통 (사건 기록 / 도감 / 돌아가기 확인) ===== */
+#popup, #confirm, #book {
   position: absolute;
   inset: 0;
   display: flex;
@@ -8,20 +8,20 @@
   background: rgba(10, 12, 20, 0.55);
   z-index: 10;
 }
-#popup[hidden], #confirm[hidden] { display: none; }
 
-#popup-box, #confirm-box {
-  width: min(86%, 520px);
-  max-height: 86%;
-  overflow-y: auto;
-  padding: 1.4em 1.6em;
+#popup-box, #confirm-box, #book-box {
+  width: min(90%, 560px);
+  max-height: 92%;
+  padding: 1.2em 1.4em;
   color: #2b2b2b;
   background: #f7f0e1;
   border: 3px solid #2b2b2b;
   border-radius: 6px;
   box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.35);
 }
+#popup-box { overflow-y: auto; }
 
+/* ===== 사건 기록 팝업 ===== */
 #popup-title {
   font-size: clamp(16px, 3vw, 24px);
   font-weight: bold;
@@ -31,18 +31,184 @@
   font-size: clamp(11px, 1.8vw, 15px);
   color: #b3452f;
 }
-#popup-body {
-  margin: 0.9em 0;
+#popup-new {
+  display: inline-block;
+  margin-top: 0.4em;
+  padding: 0.1em 0.6em;
+  font-size: clamp(10px, 1.6vw, 13px);
+  color: #fff;
+  background: #e8604c;
+  border-radius: 10px;
+}
+#popup-desc {
+  margin-top: 0.8em;
   font-size: clamp(12px, 2vw, 16px);
   line-height: 1.6;
   color: #555;
+  white-space: pre-wrap;
 }
+
+/* ----- 사진 / 영상 ----- */
+#popup-media { margin-top: 0.9em; }
+.media-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  background: #222;
+  border: 2px solid #2b2b2b;
+  border-radius: 4px;
+}
+.media-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.media-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: clamp(11px, 1.8vw, 14px);
+}
+.video-thumb { cursor: pointer; }
+.video-thumb.no-thumb { background: linear-gradient(135deg, #3a3f58, #1c2038); }
+.play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3.4em;
+  height: 3.4em;
+  margin: -1.7em 0 0 -1.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.2em;
+  font-size: clamp(12px, 2.2vw, 18px);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.video-thumb:hover .play-icon { background: rgba(179, 69, 47, 0.9); }
+.media-label {
+  margin-top: 0.3em;
+  font-size: clamp(10px, 1.6vw, 13px);
+  color: #777;
+  text-align: center;
+}
+#media-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8em;
+  margin-top: 0.4em;
+  font-size: clamp(11px, 1.8vw, 14px);
+}
+#media-nav button {
+  padding: 0.2em 0.8em;
+  color: #2b2b2b;
+  background: #fff;
+  border: 2px solid #2b2b2b;
+  border-radius: 4px;
+}
+
+/* ----- 멤버별 스케이트보드 ----- */
+#popup-boards { margin-top: 0.9em; }
+#boards-label {
+  font-size: clamp(11px, 1.8vw, 14px);
+  font-weight: bold;
+  color: #555;
+}
+#boards-list {
+  display: flex;
+  flex-wrap: wrap;            /* 좁은 화면에서는 여러 줄로 배치 */
+  gap: 0.4em 0.5em;
+  margin-top: 0.3em;
+}
+.member-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 4.6em;
+  padding: 0.3em 0.2em 0.2em;
+  font-size: clamp(11px, 1.8vw, 14px);
+  color: #2b2b2b;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+.member-board:hover { background: rgba(0, 0, 0, 0.06); }
+.member-board.selected { border-color: #b3452f; background: rgba(179, 69, 47, 0.1); }
+.board-art {
+  position: relative;
+  display: block;
+  width: 3.6em;
+  height: 1.7em;
+}
+.board-deck {
+  position: absolute;
+  top: 0.25em;
+  left: 0;
+  right: 0;
+  height: 0.8em;
+  border: 2px solid #2b2b2b;
+  border-radius: 0.5em;
+}
+.board-wheel {
+  position: absolute;
+  bottom: 0.1em;
+  width: 0.55em;
+  height: 0.55em;
+  background: #2b2b2b;
+  border-radius: 50%;
+}
+.board-wheel.w1 { left: 0.7em; }
+.board-wheel.w2 { right: 0.7em; }
+.board-art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.board-art.has-image .board-deck,
+.board-art.has-image .board-wheel { display: none; }
+.board-name { margin-top: 0.15em; }
+.member-board.read .board-name::after { content: " ✓"; color: #b3452f; }
+
+#popup-comment {
+  margin-top: 0.5em;
+  padding: 0.8em 1em;
+  background: #fffaf0;
+  border: 2px solid #2b2b2b;
+  border-radius: 4px;
+}
+#comment-head { font-size: clamp(13px, 2.2vw, 17px); font-weight: bold; }
+#comment-meta { margin-top: 0.15em; font-size: clamp(10px, 1.6vw, 13px); color: #777; }
+#comment-body {
+  margin-top: 0.6em;
+  font-size: clamp(12px, 2vw, 15px);
+  line-height: 1.7;
+  white-space: pre-wrap;      /* 자료 원문의 줄바꿈과 띄어쓰기를 그대로 유지 */
+  word-break: keep-all;
+}
+
 #popup-source {
+  margin-top: 0.8em;
   font-size: clamp(10px, 1.6vw, 13px);
   color: #777;
 }
-#popup-source:empty { display: none; }
-
 #popup-close {
   margin-top: 1em;
   padding: 0.5em 1.4em;
@@ -53,13 +219,11 @@
   border-radius: 4px;
 }
 
-/* ===== 맵 끝 "메인 골목으로 돌아가기" 팝업 ===== */
+/* ===== 메인 골목 돌아가기 확인 팝업 ===== */
 #confirm-box { text-align: center; }
-#confirm-text {
-  font-size: clamp(14px, 2.4vw, 20px);
-  line-height: 1.6;
-  font-weight: bold;
-}
+#confirm-text { font-size: clamp(14px, 2.4vw, 20px); line-height: 1.6; font-weight: bold; }
+#confirm-main, #confirm-warn { display: block; }
+#confirm-warn { margin-top: 0.4em; font-size: 0.85em; color: #b3452f; }
 #confirm-buttons {
   display: flex;
   gap: 0.8em;
@@ -75,3 +239,67 @@
 }
 #confirm-yes { color: #fff; background: #2b2b2b; }
 #confirm-no  { color: #2b2b2b; background: #f7f0e1; }
+
+/* ===== 도감 ===== */
+#book-box {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#book-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 0.5em;
+  border-bottom: 2px solid #2b2b2b;
+}
+#book-heading { font-size: clamp(16px, 3vw, 24px); font-weight: bold; }
+#book-progress { font-size: clamp(11px, 1.9vw, 15px); color: #b3452f; font-weight: bold; }
+#book-list {
+  flex: 1;
+  min-height: 0;
+  margin-top: 0.5em;
+  overflow-y: auto;
+}
+.book-group { margin-bottom: 0.9em; }
+.book-group-title {
+  margin: 0 0 0.3em;
+  font-size: clamp(12px, 2vw, 16px);
+  color: #2b2b2b;
+}
+.book-items { margin: 0; padding: 0; list-style: none; }
+.book-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0.25em 0.2em;
+  font-size: clamp(11px, 1.8vw, 14px);
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.15);
+}
+.book-mark {
+  flex: none;
+  width: 1.4em;
+  height: 1.4em;
+  line-height: 1.4em;
+  text-align: center;
+  border-radius: 50%;
+}
+.book-item.got .book-mark { color: #fff; background: #2fb344; }
+.book-item.locked .book-mark { color: #fff; background: #aaa; }
+.book-item.locked .book-title { color: #999; letter-spacing: 0.15em; }
+.book-title { flex: 1; }
+.book-date, .book-read { flex: none; font-size: 0.85em; color: #777; }
+#book-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6em;
+  margin-top: 0.8em;
+}
+#book-foot button {
+  padding: 0.5em 1.2em;
+  font-size: clamp(11px, 1.9vw, 14px);
+  border-radius: 4px;
+  border: 2px solid #2b2b2b;
+}
+#book-close { margin-left: auto; color: #fff; background: #2b2b2b; }
+#book-reset { color: #b3452f; background: #fff; }

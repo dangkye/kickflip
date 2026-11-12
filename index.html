@@ -17,37 +17,83 @@
       <div id="hud-toast"></div>
       <div id="hud-music" hidden>♪</div> <!-- 음악 재생 표시 자리 (음악 단계에서 사용) -->
 
+      <!-- 도감 열기 버튼 (오른쪽 위, 맵 이름 아래) -->
+      <button id="btn-book" type="button">도감</button>
+
       <!-- 앨범 맵에서 메인 골목으로 돌아가기 -->
-      <button id="btn-back" hidden>골목으로 돌아가기</button>
+      <button id="btn-back" type="button" hidden>골목으로 돌아가기</button>
 
       <!-- 개발용 맵 선택 (CONFIG.debug가 true일 때만 보임) -->
       <select id="dev-map" hidden title="개발용 맵 이동"></select>
 
       <!-- 모바일 터치 이동 버튼 -->
       <div id="touch-controls">
-        <button id="btn-left" aria-label="왼쪽으로 이동">◀</button>
-        <button id="btn-right" aria-label="오른쪽으로 이동">▶</button>
+        <button id="btn-left" type="button" aria-label="왼쪽으로 이동">◀</button>
+        <button id="btn-right" type="button" aria-label="오른쪽으로 이동">▶</button>
       </div>
 
-      <!-- 앨범 맵 끝에 닿으면 뜨는 "메인 골목으로 돌아가기" 팝업 -->
-      <div id="confirm" hidden>
-        <div id="confirm-box">
-          <div id="confirm-text">이 앨범의 끝이에요.<br>메인 골목으로 돌아갈까요?</div>
-          <div id="confirm-buttons">
-            <button id="confirm-yes">메인으로 돌아가기</button>
-            <button id="confirm-no">더 둘러보기</button>
+      <!-- 도감 -->
+      <div id="book" hidden>
+        <div id="book-box">
+          <div id="book-head">
+            <span id="book-heading">도감</span>
+            <span id="book-progress"></span>
+          </div>
+          <div id="book-list"></div>
+          <div id="book-foot">
+            <button id="book-reset" type="button" hidden>기록 초기화 (개발용)</button>
+            <button id="book-close" type="button">닫기</button>
           </div>
         </div>
       </div>
 
-      <!-- 임시 사건 팝업 (7단계에서 공통 컴포넌트로 완성) -->
+      <!-- 사건 기록 팝업 (모든 사건이 이 하나의 구조를 공통으로 사용) -->
       <div id="popup" hidden>
         <div id="popup-box">
-          <div id="popup-title"></div>
-          <div id="popup-date"></div>
-          <div id="popup-body">임시 팝업입니다. 설명, 사진, 멤버별 스케이트보드는 다음 단계에서 들어갑니다.</div>
-          <div id="popup-source"></div>
-          <button id="popup-close">닫기</button>
+          <div id="popup-head">
+            <div id="popup-title"></div>
+            <div id="popup-date"></div>
+            <div id="popup-new" hidden>도감에 새로 기록됐어요</div>
+          </div>
+          <div id="popup-desc" hidden></div>
+
+          <!-- 사진 / 영상 (영상은 썸네일을 누르면 재생) -->
+          <div id="popup-media" hidden>
+            <div id="media-view"></div>
+            <div id="media-nav">
+              <button id="media-prev" type="button" aria-label="이전 자료">◀</button>
+              <span id="media-count"></span>
+              <button id="media-next" type="button" aria-label="다음 자료">▶</button>
+            </div>
+          </div>
+
+          <!-- 멤버별 스케이트보드 (소감이 있는 멤버만 표시) -->
+          <div id="popup-boards" hidden>
+            <div id="boards-label">멤버별 소감</div>
+            <div id="boards-list"></div>
+          </div>
+          <div id="popup-comment" hidden>
+            <div id="comment-head"></div>
+            <div id="comment-meta"></div>
+            <div id="comment-body"></div>
+          </div>
+
+          <div id="popup-source" hidden></div>
+          <button id="popup-close" type="button">닫기</button>
+        </div>
+      </div>
+
+      <!-- 앨범 맵 끝에 닿거나 돌아가기 버튼을 눌렀을 때 뜨는 확인 팝업 -->
+      <div id="confirm" hidden>
+        <div id="confirm-box">
+          <div id="confirm-text">
+            <span id="confirm-main"></span>
+            <span id="confirm-warn" hidden></span>
+          </div>
+          <div id="confirm-buttons">
+            <button id="confirm-yes" type="button">메인으로 돌아가기</button>
+            <button id="confirm-no" type="button">더 둘러보기</button>
+          </div>
         </div>
       </div>
     </div>
@@ -57,9 +103,14 @@
 
   <script src="js/assets.js"></script>
   <script src="js/events-data.js"></script>
+  <script src="js/comments-data.js"></script>
   <script src="js/music-data.js"></script>
   <script src="js/maps.js"></script>
   <script src="js/objects.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/collection.js"></script>
+  <script src="js/popup.js"></script>
+  <script src="js/book.js"></script>
   <script src="js/player.js"></script>
   <script src="js/main.js"></script>
 </body>

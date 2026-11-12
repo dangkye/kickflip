@@ -127,3 +127,15 @@ const ALBUM_BOARD_COLORS = {
   album4: ["#a9c9b0", "#6b4a2e"],
   album5: ["#0f5a2a", "#39ff14"]
 };
+
+// 도감에서 쓰는 앨범 이름과 표시 순서 (장면이 나뉜 앨범은 앨범 id 하나로 묶인다)
+const ALBUM_ORDER = ["main", "album1", "album2", "album3", "fancon", "album4", "album5"];
+const ALBUM_NAMES = {
+  main:   "메인 골목",
+  album1: "미니 1집  Flip it, Kick it!",
+  album2: "미니 2집  Kick Out, Flip Now!",
+  album3: "미니 3집  My First Flip",
+  fancon: "팬콘  From KickFlip, To WeFlip",
+  album4: "미니 4집  My First Kick",
+  album5: "미니 5집  KICK OFF THE WALL Pt.1"
+};
