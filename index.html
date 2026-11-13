@@ -6,6 +6,7 @@
   <title>킥플립 팬사이트</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/popup.css">
+  <link rel="stylesheet" href="css/intro.css">
 </head>
 <body>
   <div id="wrap">
@@ -96,12 +97,39 @@
           </div>
         </div>
       </div>
+
+      <!-- 시작 화면: 타이틀 -> 멤버 선택 -> 착장 선택 (선택이 끝나야 게임이 시작됨) -->
+      <div id="intro">
+        <section id="screen-title" class="intro-screen">
+          <div id="title-logo">KICKFLIP</div>
+          <div id="title-sub">FAN SITE</div>
+          <button id="btn-start" class="intro-btn" type="button">시작하기</button>
+        </section>
+
+        <section id="screen-member" class="intro-screen" hidden>
+          <h2 class="intro-heading">멤버 선택</h2>
+          <div id="member-grid"></div>
+          <div class="intro-buttons">
+            <button id="member-back" class="intro-btn secondary" type="button">뒤로</button>
+          </div>
+        </section>
+
+        <section id="screen-outfit" class="intro-screen" hidden>
+          <h2 id="outfit-heading" class="intro-heading"></h2>
+          <div id="outfit-grid"></div>
+          <div class="intro-buttons">
+            <button id="outfit-back" class="intro-btn secondary" type="button">뒤로</button>
+            <button id="outfit-go" class="intro-btn" type="button" disabled>이 착장으로 시작</button>
+          </div>
+        </section>
+      </div>
     </div>
 
     <div id="rotate-hint">가로 화면으로 돌려서 플레이해 주세요</div>
   </div>
 
   <script src="js/assets.js"></script>
+  <script src="js/avatars-data.js"></script>
   <script src="js/events-data.js"></script>
   <script src="js/comments-data.js"></script>
   <script src="js/music-data.js"></script>
@@ -112,6 +140,7 @@
   <script src="js/popup.js"></script>
   <script src="js/book.js"></script>
   <script src="js/player.js"></script>
+  <script src="js/intro.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

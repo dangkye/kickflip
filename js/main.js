@@ -38,7 +38,8 @@
     dark: 0,
     hoverObject: null,
     popupOpen: false,
-    fade: 0,            // 맵 이동 시 화면 암전 (0~1)
+    outfit: OUTFITS[0],   // 선택한 착장 (시작 화면에서 고르면 바뀐다)
+    fade: 0,           // 맵 이동 시 화면 암전 (0~1)
     fadeDir: 0,         // 1: 어두워지는 중, -1: 밝아지는 중
     holdTime: 0,        // 암전 상태로 "로딩 중" 화면을 유지하는 남은 시간(초)
     pendingMap: null,   // 암전이 끝나면 이동할 맵 { id, spawnX }
@@ -60,7 +61,7 @@
     state.mapId = mapId;
     state.map = map;
     state.objects = OBJECTS_BY_MAP[mapId] || [];
-    state.player = Player.create(spawnX != null ? spawnX : map.spawnX);
+    state.player = Player.create(spawnX != null ? spawnX : map.spawnX, state.outfit);
     state.paletteKey = map.defaultPalette;
     state.firedTriggers = {};
     state.sectionName = null;
@@ -529,6 +530,23 @@
       console.error(err);
     }
     requestAnimationFrame(frame);
+  }
+
+  // ---------- 시작 화면 (타이틀 -> 멤버 선택 -> 착장 선택) ----------
+  // 착장을 고르기 전에는 이동과 클릭을 막고, 고르면 그 착장으로 게임을 시작한다.
+  Intro.init({
+    onStart: function (outfit) {
+      state.outfit = outfit;
+      state.player.outfit = outfit;
+      state.popupOpen = false;
+    }
+  });
+  if (CONFIG.skipIntro) {
+    state.outfit = OUTFITS[0];
+    state.player.outfit = OUTFITS[0];
+    Intro.skip();
+  } else {
+    state.popupOpen = true;
   }
 
   loadMap("main");

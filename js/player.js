@@ -1,13 +1,15 @@
 // ===== 플레이어 =====
 // 좌우 이동, 바라보는 방향, 걷기 애니메이션, 맵 경계 제한을 담당한다.
-// 현재는 단색 사람 모양이며, AVATAR(assets.js)에 이미지 경로를 넣으면 이미지로 교체된다.
+// 모양은 선택한 착장(avatars-data.js의 OUTFITS 항목)에서 온다.
+//   착장 필드: color(상의) / pants(하의) / accent(머리) / idle / walk[] / width / height
+// 이미지가 없으면 단색 사람 모양으로 그린다.
 
 const Player = (() => {
   const SPEED = 230;      // 초당 이동 픽셀
   const EDGE_MARGIN = 24; // 맵 가장자리 여유
 
-  function create(x) {
-    return { x: x, dir: 1, moving: false, walkTime: 0 };
+  function create(x, outfit) {
+    return { x: x, dir: 1, moving: false, walkTime: 0, outfit: outfit || null };
   }
 
   // input: { left: bool, right: bool }
@@ -28,53 +30,67 @@ const Player = (() => {
     player.x = Math.max(EDGE_MARGIN, Math.min(mapWidth - EDGE_MARGIN, player.x));
   }
 
-  // 화면에 그리기. screenX는 카메라를 반영한 화면 좌표, groundY는 바닥선 높이
-  function draw(ctx, player, screenX, groundY) {
-    const w = AVATAR.width;
-    const h = AVATAR.height;
+  // 발 위치를 (0,0)으로 해서 사람을 그린다.
+  // 이미지가 있으면 이미지(걷기 프레임이 없으면 idle 그대로), 없으면 단색 사람 모양.
+  // pose = { moving, walkTime }
+  function drawFigure(ctx, outfit, pose) {
+    const o = outfit || {};
+    const moving = !!(pose && pose.moving);
+    const walkTime = (pose && pose.walkTime) || 0;
+    const w = o.width || AVATAR.width;
+    const h = o.height || AVATAR.height;
 
-    ctx.save();
-    ctx.translate(Math.round(screenX), groundY);
-    ctx.scale(player.dir, 1);   // 왼쪽을 볼 때는 좌우 반전
-
-    // 이미지가 있으면 이미지로 그린다 (대기 / 걷기 프레임)
     let img = null;
-    if (player.moving && AVATAR.walk.length > 0) {
-      const frame = Math.floor(player.walkTime * 8) % AVATAR.walk.length;
-      img = Assets.get(AVATAR.walk[frame]);
-    } else if (AVATAR.idle) {
-      img = Assets.get(AVATAR.idle);
+    if (moving && o.walk && o.walk.length > 0) {
+      img = Assets.get(o.walk[Math.floor(walkTime * 8) % o.walk.length]);
     }
+    if (!img && o.idle) img = Assets.get(o.idle);
+    if (!img && !o.idle && !(o.walk && o.walk.length)) img = Assets.get(AVATAR.idle);
     if (img) {
-      Assets.drawFit(ctx, img, -w / 2, -h, w, h);
-      ctx.restore();
+      Assets.drawFit(ctx, img, -w / 2, -h, w, h);   // 원본 비율 유지, 발 기준 정렬
       return;
     }
 
     // ---- 임시 도형 아바타 ----
-    const swing = player.moving ? Math.sin(player.walkTime * 14) : 0;
-    const bob = player.moving ? Math.abs(Math.sin(player.walkTime * 14)) * 2 : 0;
+    const shirt = o.color || AVATAR.color;
+    const pants = o.pants || "#3b3b4f";
+    const hair = o.accent || "#2b2b2b";
+    const bw = AVATAR.width, bh = AVATAR.height;
+    const swing = moving ? Math.sin(walkTime * 14) : 0;
+    const bob = moving ? Math.abs(Math.sin(walkTime * 14)) * 2 : 0;
 
     // 다리 (걸을 때 번갈아 움직임)
-    ctx.fillStyle = "#3b3b4f";
-    ctx.fillRect(-8 + swing * 5, -16 + 0, 7, 16);
-    ctx.fillRect(1 - swing * 5, -16 + 0, 7, 16);
+    ctx.fillStyle = pants;
+    ctx.fillRect(-8 + swing * 5, -16, 7, 16);
+    ctx.fillRect(1 - swing * 5, -16, 7, 16);
     // 몸통
-    ctx.fillStyle = AVATAR.color;
-    ctx.fillRect(-w / 2, -h + 18 - bob, w, 24);
-    // 팔
-    ctx.fillStyle = "#c9483a";
-    ctx.fillRect(-w / 2 - 4, -h + 20 - bob + swing * 2, 5, 18);
-    ctx.fillRect(w / 2 - 1, -h + 20 - bob - swing * 2, 5, 18);
+    ctx.fillStyle = shirt;
+    ctx.fillRect(-bw / 2, -bh + 18 - bob, bw, 24);
+    // 팔 (몸통보다 조금 어둡게)
+    ctx.fillRect(-bw / 2 - 4, -bh + 20 - bob + swing * 2, 5, 18);
+    ctx.fillRect(bw / 2 - 1, -bh + 20 - bob - swing * 2, 5, 18);
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(-bw / 2 - 4, -bh + 20 - bob + swing * 2, 5, 18);
+    ctx.fillRect(bw / 2 - 1, -bh + 20 - bob - swing * 2, 5, 18);
     // 머리
     ctx.fillStyle = "#f2c9a0";
-    ctx.fillRect(-9, -h - bob, 18, 18);
+    ctx.fillRect(-9, -bh - bob, 18, 18);
+    // 머리카락
+    ctx.fillStyle = hair;
+    ctx.fillRect(-9, -bh - bob, 18, 6);
     // 눈 (바라보는 방향 표시)
     ctx.fillStyle = "#222";
-    ctx.fillRect(2, -h + 6 - bob, 3, 3);
+    ctx.fillRect(2, -bh + 8 - bob, 3, 3);
+  }
 
+  // 화면에 그리기. screenX는 카메라를 반영한 화면 좌표, groundY는 바닥선 높이
+  function draw(ctx, player, screenX, groundY) {
+    ctx.save();
+    ctx.translate(Math.round(screenX), groundY);
+    ctx.scale(player.dir, 1);   // 왼쪽을 볼 때는 좌우 반전
+    drawFigure(ctx, player.outfit, { moving: player.moving, walkTime: player.walkTime });
     ctx.restore();
   }
 
-  return { create, update, draw };
+  return { create, update, draw, drawFigure };
 })();

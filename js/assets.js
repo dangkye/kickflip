@@ -4,22 +4,30 @@
 
 const CONFIG = {
   debug: true,          // true면 화면에 개발용 맵 선택 메뉴가 보인다. 배포 전에 false로 바꾼다.
+  skipIntro: false,     // true면 시작 화면(타이틀, 멤버/착장 선택)을 건너뛰고 바로 게임을 시작한다. (개발용)
   logicalWidth: 960,    // 논리 해상도 (16:9)
   logicalHeight: 540
 };
 
 // 멤버 정보 (임시 스케이트보드 색상, 나중에 skateboardImage 경로에 실제 이미지를 넣으면 교체됨)
+// portrait: 멤버 선택 화면에 보일 이미지 경로 (없으면 첫 번째 착장의 임시 아바타가 보인다)
 const MEMBERS = [
-  { id: "계훈",   color: "#ff1493", skateboardImage: null },
-  { id: "아마루", color: "#9b7ede", skateboardImage: null }, // 아마루 색상은 아직 미지정 -> 임시 보라
-  { id: "주왕",   color: "#ff8c1a", skateboardImage: null },
-  { id: "동화",   color: "#2fb344", skateboardImage: null },
-  { id: "민제",   color: "#5bc0eb", skateboardImage: null },
-  { id: "케이주", color: "#ffb6d5", skateboardImage: null },
-  { id: "동현",   color: "#1e4fd8", skateboardImage: null }
+  { id: "계훈",   color: "#ff1493", skateboardImage: null, portrait: null },
+  { id: "아마루", color: "#9b7ede", skateboardImage: null, portrait: null }, // 아마루 색상은 아직 미지정 -> 임시 보라
+  { id: "주왕",   color: "#ff8c1a", skateboardImage: null, portrait: null },
+  { id: "동화",   color: "#2fb344", skateboardImage: null, portrait: null },
+  { id: "민제",   color: "#5bc0eb", skateboardImage: null, portrait: null },
+  { id: "케이주", color: "#ffb6d5", skateboardImage: null, portrait: null },
+  { id: "동현",   color: "#1e4fd8", skateboardImage: null, portrait: null }
 ];
 
-// 플레이어 아바타 설정 (현재는 단색 사람 모양)
+// 시작 화면 이미지 (나중에 경로만 넣으면 교체된다. null이면 단색 배경)
+const UI_IMAGES = {
+  title: null   // 예: "assets/ui/title.png"  (시작 화면 전체 배경)
+};
+
+// 플레이어 아바타 기본 설정 (착장 데이터에 값이 없을 때 쓰는 기본값)
+// 실제 아바타는 avatars-data.js의 착장(OUTFITS)에서 멤버별로 관리한다.
 // 나중에 이미지 경로를 넣으면 교체된다. walk는 프레임 배열.
 const AVATAR = {
   color: "#e8604c",
